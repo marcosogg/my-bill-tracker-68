@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { FileIcon } from "lucide-react";
+import { FileIcon, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Card,
@@ -10,7 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/components/ui/use-toast";
 
 type Bill = {
   id: string;
@@ -28,6 +30,7 @@ type Bill = {
 
 const BillDetails = () => {
   const { id } = useParams<{ id: string }>();
+  const { toast } = useToast();
 
   const { data: bill, isLoading } = useQuery({
     queryKey: ["bill", id],
@@ -59,6 +62,57 @@ const BillDetails = () => {
         return "text-red-500";
       default:
         return "";
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to download attachments",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/download-attachment?billId=${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to download attachment');
+      }
+
+      // Get the filename from the Content-Disposition header if available
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filename = contentDisposition
+        ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+        : 'attachment';
+
+      // Create a blob from the response and trigger download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download attachment",
+        variant: "destructive",
+      });
     }
   };
 
@@ -160,15 +214,14 @@ const BillDetails = () => {
                 <Separator />
                 <div>
                   <p className="text-sm text-muted-foreground mb-2">Attachment</p>
-                  <a
-                    href={`${supabase.storage.from('bill-attachments').getPublicUrl(bill.attachment).data.publicUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-primary hover:underline"
+                  <Button
+                    variant="outline"
+                    onClick={handleDownload}
+                    className="gap-2"
                   >
-                    <FileIcon className="h-4 w-4" />
-                    View Attachment
-                  </a>
+                    <Download className="h-4 w-4" />
+                    Download Attachment
+                  </Button>
                 </div>
               </>
             )}
