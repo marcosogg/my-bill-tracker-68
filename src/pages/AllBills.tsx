@@ -15,7 +15,7 @@ const AllBills = () => {
   const [sortField, setSortField] = useState<SortField>("due_date");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
 
-  const { data: bills, isLoading } = useQuery({
+  const { data: bills, isLoading, refetch } = useQuery({
     queryKey: ["bills", location, category, paidStatus, sortField, sortOrder],
     queryFn: async () => {
       let query = supabase
@@ -94,6 +94,7 @@ const AllBills = () => {
             sortField={sortField}
             sortOrder={sortOrder}
             onSort={toggleSort}
+            refetchBills={refetch}
           />
         ) : (
           <div className="text-center py-8 text-muted-foreground">
