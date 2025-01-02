@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageLayout } from "@/components/layout/PageLayout";
 
 const CalendarView = () => {
   return (
-    <div className="container mx-auto p-8">
+    <PageLayout>
       <Card>
         <CardHeader>
           <CardTitle>Calendar View</CardTitle>
@@ -13,7 +14,7 @@ const CalendarView = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageLayout>
   );
 };
 
