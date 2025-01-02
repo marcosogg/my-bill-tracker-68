@@ -10,9 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { BillActions } from "./BillActions";
 
 export type Bill = {
   id: string;
@@ -31,7 +28,6 @@ type BillsTableProps = {
   sortField: SortField;
   sortOrder: SortOrder;
   onSort: (field: SortField) => void;
-  refetchBills: () => void;
 };
 
 export const getStatusColor = (status: string) => {
@@ -53,40 +49,8 @@ export const getPaidStatus = (dueDate: string) => {
   return due < today ? "Overdue" : "Unpaid";
 };
 
-export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }: BillsTableProps) => {
+export const BillsTable = ({ bills, sortField, sortOrder, onSort }: BillsTableProps) => {
   const navigate = useNavigate();
-
-  const handleDelete = async (billId: string) => {
-    try {
-      const { error } = await supabase
-        .from("bills")
-        .delete()
-        .eq("id", billId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Bill deleted successfully",
-        description: "The bill has been removed from your records.",
-      });
-      
-      refetchBills();
-    } catch (error) {
-      console.error("Error deleting bill:", error);
-      toast({
-        title: "Error deleting bill",
-        description: "There was a problem deleting the bill. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleRowClick = (e: React.MouseEvent, billId: string) => {
-    // Only navigate if the click wasn't on a button
-    if (!(e.target as HTMLElement).closest('button')) {
-      navigate(`/bills/${billId}`);
-    }
-  };
 
   return (
     <Table>
@@ -116,7 +80,6 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
           <TableHead>Category</TableHead>
           <TableHead>Location/Person</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -126,7 +89,7 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
             <TableRow
               key={bill.id}
               className="cursor-pointer hover:bg-muted/50"
-              onClick={(e) => handleRowClick(e, bill.id)}
+              onClick={() => navigate(`/bills/${bill.id}`)}
             >
               <TableCell>{bill.provider}</TableCell>
               <TableCell>
@@ -137,12 +100,6 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
               <TableCell>{bill.location_person}</TableCell>
               <TableCell className={getStatusColor(status)}>
                 {status}
-              </TableCell>
-              <TableCell>
-                <BillActions 
-                  billId={bill.id}
-                  onDelete={() => handleDelete(bill.id)}
-                />
               </TableCell>
             </TableRow>
           );

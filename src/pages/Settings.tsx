@@ -1,9 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageLayout } from "@/components/layout/PageLayout";
 
 const Settings = () => {
   return (
-    <PageLayout>
+    <div className="container mx-auto p-8">
       <Card>
         <CardHeader>
           <CardTitle>Settings</CardTitle>
@@ -14,7 +13,7 @@ const Settings = () => {
           </div>
         </CardContent>
       </Card>
-    </PageLayout>
+    </div>
   );
 };
 
