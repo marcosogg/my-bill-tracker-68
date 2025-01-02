@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AddBill from "./pages/AddBill";
 import AllBills from "./pages/AllBills";
+import BillDetails from "./pages/BillDetails";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <AllBills />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bills/:id"
+            element={
+              <ProtectedRoute>
+                <BillDetails />
               </ProtectedRoute>
             }
           />
