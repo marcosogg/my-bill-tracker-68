@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AddBill from "./pages/AddBill";
+import AllBills from "./pages/AllBills";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <AddBill />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bills"
+            element={
+              <ProtectedRoute>
+                <AllBills />
               </ProtectedRoute>
             }
           />
