@@ -91,7 +91,7 @@ const RecurringBillsCard = () => {
         )}
       </CardContent>
     </Card>
-  </div>
-);
+  );
+};
 
 export default RecurringBillsCard;
