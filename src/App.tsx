@@ -1,4 +1,3 @@
-// src/App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,13 +12,13 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <SidebarProvider>
-        <BrowserRouter>
-          <div className="h-screen">
-            <Toaster />
-            <Sonner />
+        <div className="flex min-h-screen w-full">
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
             <AppRoutes />
-          </div>
-        </BrowserRouter>
+          </BrowserRouter>
+        </div>
       </SidebarProvider>
     </TooltipProvider>
   </QueryClientProvider>
