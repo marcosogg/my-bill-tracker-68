@@ -86,7 +86,7 @@ serve(async (req) => {
       headers: {
         ...corsHeaders,
         'Content-Type': contentType,
-        'Content-Disposition': `attachment; filename="${bill.attachment}"`,
+        'Content-Disposition': `attachment; filename="${bill.attachment.split('/').pop()}"`,
       },
     })
   } catch (error) {
