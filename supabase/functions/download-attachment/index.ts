@@ -63,6 +63,9 @@ serve(async (req) => {
       )
     }
 
+    // Extract original filename from the attachment path
+    const originalFilename = bill.attachment.split('/').pop() || 'attachment'
+
     // Download the file from storage
     const { data: fileData, error: downloadError } = await supabaseClient
       .storage
@@ -78,17 +81,18 @@ serve(async (req) => {
     }
 
     // Get the file extension to set the correct content type
-    const fileExtension = bill.attachment.split('.').pop()?.toLowerCase()
+    const fileExtension = originalFilename.split('.').pop()?.toLowerCase()
     const contentType = fileExtension === 'pdf' ? 'application/pdf' : 'application/octet-stream'
 
-    // Return the file with appropriate headers
-    return new Response(fileData, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': contentType,
-        'Content-Disposition': `attachment; filename="${bill.attachment}"`,
-      },
-    })
+    // Create response headers
+    const responseHeaders = {
+      ...corsHeaders,
+      'Content-Type': contentType,
+      'Content-Disposition': `attachment; filename="${originalFilename}"`,
+    }
+
+    // Return the file as a stream
+    return new Response(fileData.stream(), { headers: responseHeaders })
   } catch (error) {
     console.error('Unexpected error:', error)
     return new Response(
