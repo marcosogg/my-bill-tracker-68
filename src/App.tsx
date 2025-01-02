@@ -10,6 +10,11 @@ import Login from "./pages/Login";
 import AddBill from "./pages/AddBill";
 import AllBills from "./pages/AllBills";
 import BillDetails from "./pages/BillDetails";
+import PaymentHistory from "./pages/PaymentHistory";
+import Settings from "./pages/Settings";
+import Reports from "./pages/Reports";
+import BudgetManagement from "./pages/BudgetManagement";
+import CalendarView from "./pages/CalendarView";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +71,46 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <BillDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment-history"
+            element={
+              <ProtectedRoute>
+                <PaymentHistory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <Reports />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/budget"
+            element={
+              <ProtectedRoute>
+                <BudgetManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <ProtectedRoute>
+                <CalendarView />
               </ProtectedRoute>
             }
           />
