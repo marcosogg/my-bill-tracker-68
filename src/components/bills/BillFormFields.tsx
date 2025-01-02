@@ -103,6 +103,10 @@ export function BillFormFields({ form }: BillFormFieldsProps) {
                 step="0.01"
                 placeholder="Enter amount"
                 {...field}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  field.onChange(value ? parseFloat(value) : 0);
+                }}
               />
             </FormControl>
             <FormMessage />
@@ -228,6 +232,10 @@ export function BillFormFields({ form }: BillFormFieldsProps) {
                   step="0.01"
                   placeholder="Enter estimated amount"
                   {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value ? parseFloat(value) : undefined);
+                  }}
                 />
               </FormControl>
               <FormMessage />

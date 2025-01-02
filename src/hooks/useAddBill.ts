@@ -10,7 +10,10 @@ export const formSchema = z.object({
   due_date: z.date({
     required_error: "Due date is required",
   }),
-  amount: z.string().min(1, "Amount is required").transform((val) => parseFloat(val)),
+  amount: z.number({
+    required_error: "Amount is required",
+    invalid_type_error: "Amount must be a number",
+  }),
   category: z.enum([
     "Electricity",
     "Water",
@@ -28,9 +31,7 @@ export const formSchema = z.object({
   ]),
   notes: z.string().optional(),
   recurring: z.boolean().default(false),
-  estimated_amount: z.string()
-    .transform((val) => (val ? parseFloat(val) : undefined))
-    .optional(),
+  estimated_amount: z.number().optional(),
   attachment: z.instanceof(File).optional(),
 });
 

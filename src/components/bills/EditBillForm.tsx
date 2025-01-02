@@ -31,13 +31,13 @@ export function EditBillForm({ bill }: EditBillFormProps) {
     defaultValues: {
       provider: bill.provider,
       due_date: new Date(bill.due_date),
-      amount: bill.amount.toString(),
+      amount: bill.amount,
       category: bill.category as FormValues["category"],
       payment_method: bill.payment_method,
       location_person: bill.location_person as FormValues["location_person"],
       notes: bill.notes || "",
       recurring: bill.recurring || false,
-      estimated_amount: bill.estimated_amount ? bill.estimated_amount.toString() : "",
+      estimated_amount: bill.estimated_amount || undefined,
     },
   });
 
