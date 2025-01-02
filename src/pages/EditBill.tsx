@@ -12,8 +12,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { format, parse } from "date-fns";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import * as React from "react";
 
 const EditBill = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,13 +66,13 @@ const EditBill = () => {
       form.reset({
         provider: bill.provider,
         due_date: parse(bill.due_date, "yyyy-MM-dd", new Date()),
-        amount: bill.amount.toString(),
+        amount: String(bill.amount), // Convert number to string for the form
         category: bill.category as any,
         payment_method: bill.payment_method,
         location_person: bill.location_person as any,
         notes: bill.notes || "",
         recurring: bill.recurring || false,
-        estimated_amount: bill.estimated_amount?.toString() || "",
+        estimated_amount: bill.estimated_amount ? String(bill.estimated_amount) : undefined, // Convert number to string for the form
       });
     }
   }, [bill, form]);
