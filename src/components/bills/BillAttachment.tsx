@@ -37,7 +37,7 @@ export const BillAttachment = ({ billId }: Props) => {
 
       // Get the filename from the Content-Disposition header
       const contentDisposition = response.headers.get('Content-Disposition');
-      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filenameMatch = contentDisposition?.match(/filename="([^"]+)"/);
       const filename = filenameMatch ? filenameMatch[1] : 'attachment';
 
       // Create a blob from the response and trigger download

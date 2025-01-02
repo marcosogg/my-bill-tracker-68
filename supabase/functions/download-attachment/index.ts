@@ -6,6 +6,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Map common file extensions to MIME types
+const getMimeType = (filename: string): string => {
+  const ext = filename.split('.').pop()?.toLowerCase() || '';
+  const mimeTypes: { [key: string]: string } = {
+    'pdf': 'application/pdf',
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'gif': 'image/gif',
+    'doc': 'application/msword',
+    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'xls': 'application/vnd.ms-excel',
+    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'txt': 'text/plain'
+  };
+  return mimeTypes[ext] || 'application/octet-stream';
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -80,18 +98,17 @@ serve(async (req) => {
       )
     }
 
-    // Get the file extension to set the correct content type
-    const fileExtension = originalFilename.split('.').pop()?.toLowerCase()
-    const contentType = fileExtension === 'pdf' ? 'application/pdf' : 'application/octet-stream'
+    // Determine content type based on filename
+    const contentType = getMimeType(originalFilename);
 
-    // Create response headers
+    // Create response headers with proper content type and disposition
     const responseHeaders = {
       ...corsHeaders,
       'Content-Type': contentType,
       'Content-Disposition': `attachment; filename="${originalFilename}"`,
     }
 
-    // Return the file as a stream
+    // Return the file as a stream with proper headers
     return new Response(fileData.stream(), { headers: responseHeaders })
   } catch (error) {
     console.error('Unexpected error:', error)
