@@ -77,6 +77,7 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
 
       toast.success("Bill deleted successfully");
       refetchBills();
+      navigate("/bills"); // Add navigation to bills list after successful deletion
     } catch (error) {
       toast.error("Failed to delete bill");
       console.error("Error deleting bill:", error);
