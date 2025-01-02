@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
+import RecurringBillsCard from "@/components/RecurringBillsCard";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -29,7 +30,9 @@ const Index = () => {
             </Button>
           </div>
         </div>
-        <p className="text-xl text-gray-600">Start tracking your bills here!</p>
+        <div className="grid gap-8">
+          <RecurringBillsCard />
+        </div>
       </div>
     </div>
   );
