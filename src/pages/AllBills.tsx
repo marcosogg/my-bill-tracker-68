@@ -22,7 +22,7 @@ const AllBills = () => {
     queryFn: async () => {
       let query = supabase
         .from("bills")
-        .select("id, provider, due_date, amount, category, location_person");
+        .select("id, provider, due_date, amount, category, location_person, payment_status, paid_date");
 
       if (location !== "All") {
         query = query.eq("location_person", location);
@@ -41,17 +41,13 @@ const AllBills = () => {
       return (data as Bill[]).filter((bill) => {
         if (paidStatus === "All") return true;
 
-        const dueDate = new Date(bill.due_date);
-        const today = new Date();
-        const isPastDue = dueDate < today;
-
         switch (paidStatus) {
           case "Paid":
-            return !isPastDue;
+            return bill.payment_status === 'paid';
           case "Unpaid":
-            return !isPastDue;
+            return bill.payment_status === 'unpaid' && new Date(bill.due_date) >= new Date();
           case "Overdue":
-            return isPastDue;
+            return bill.payment_status === 'unpaid' && new Date(bill.due_date) < new Date();
           default:
             return true;
         }

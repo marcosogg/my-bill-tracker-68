@@ -45,7 +45,7 @@ const RecurringBillsCard = () => {
       date.setMonth(date.getMonth() + 1);
     }
     
-    return format(date, "MMM d, yyyy");
+    return format(date, "dd/MM/yyyy");
   };
 
   return (

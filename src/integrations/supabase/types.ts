@@ -24,6 +24,8 @@ export type Database = {
           provider: string
           recurring: boolean | null
           user_id: string
+          payment_status: 'paid' | 'unpaid'
+          paid_date: string | null
         }
         Insert: {
           amount: number
@@ -39,6 +41,8 @@ export type Database = {
           provider: string
           recurring?: boolean | null
           user_id: string
+          payment_status?: 'paid' | 'unpaid'
+          paid_date?: string | null
         }
         Update: {
           amount?: number
@@ -54,6 +58,8 @@ export type Database = {
           provider?: string
           recurring?: boolean | null
           user_id?: string
+          payment_status?: 'paid' | 'unpaid'
+          paid_date?: string | null
         }
         Relationships: []
       }

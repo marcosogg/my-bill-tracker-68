@@ -1,6 +1,7 @@
 import { format } from "date-fns";
-import { ArrowUpDown, Pencil, Trash } from "lucide-react";
+import { ArrowUpDown, Pencil, Trash, CheckCircle, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +23,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
 import { supabase } from "@/integrations/supabase/client";
+import { BillStatus } from "./BillStatus";
 
 export type Bill = {
   id: string;
@@ -31,6 +42,8 @@ export type Bill = {
   amount: number;
   category: string;
   location_person: string;
+  payment_status?: 'paid' | 'unpaid';
+  paid_date?: string | null;
 };
 
 export type SortField = "due_date" | "amount" | "provider";
@@ -44,27 +57,51 @@ type BillsTableProps = {
   refetchBills: () => void;
 };
 
-export const getStatusColor = (status: string) => {
-  switch (status) {
-    case "Paid":
-      return "text-green-500";
-    case "Unpaid":
-      return "text-yellow-500";
-    case "Overdue":
-      return "text-red-500";
-    default:
-      return "";
-  }
-};
-
-export const getPaidStatus = (dueDate: string) => {
-  const due = new Date(dueDate);
-  const today = new Date();
-  return due < today ? "Overdue" : "Unpaid";
-};
-
 export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }: BillsTableProps) => {
+  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const [showDateDialog, setShowDateDialog] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const navigate = useNavigate();
+
+  const handleMarkAsPaid = async (bill: Bill, paidDate: Date) => {
+    try {
+      const { error } = await supabase
+        .from("bills")
+        .update({
+          payment_status: 'paid',
+          paid_date: paidDate.toISOString()
+        })
+        .eq("id", bill.id);
+
+      if (error) throw error;
+
+      toast.success("Bill marked as paid");
+      refetchBills();
+    } catch (error) {
+      toast.error("Failed to mark bill as paid");
+      console.error("Error marking bill as paid:", error);
+    }
+  };
+
+  const handleUnmarkAsPaid = async (bill: Bill) => {
+    try {
+      const { error } = await supabase
+        .from("bills")
+        .update({
+          payment_status: 'unpaid',
+          paid_date: null
+        })
+        .eq("id", bill.id);
+
+      if (error) throw error;
+
+      toast.success("Bill marked as unpaid");
+      refetchBills();
+    } catch (error) {
+      toast.error("Failed to mark bill as unpaid");
+      console.error("Error marking bill as unpaid:", error);
+    }
+  };
 
   const handleDelete = async (billId: string) => {
     try {
@@ -77,7 +114,7 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
 
       toast.success("Bill deleted successfully");
       refetchBills();
-      navigate("/bills"); // Add navigation to bills list after successful deletion
+      navigate("/bills");
     } catch (error) {
       toast.error("Failed to delete bill");
       console.error("Error deleting bill:", error);
@@ -85,7 +122,6 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
   };
 
   const handleRowClick = (e: React.MouseEvent, billId: string) => {
-    // Prevent navigation when clicking action buttons
     if ((e.target as HTMLElement).closest('.action-button')) {
       e.stopPropagation();
       return;
@@ -94,40 +130,39 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Provider</TableHead>
-          <TableHead>
-            <Button
-              variant="ghost"
-              onClick={() => onSort("due_date")}
-              className="flex items-center gap-2"
-            >
-              Due Date
-              <ArrowUpDown className="h-4 w-4" />
-            </Button>
-          </TableHead>
-          <TableHead>
-            <Button
-              variant="ghost"
-              onClick={() => onSort("amount")}
-              className="flex items-center gap-2"
-            >
-              Amount
-              <ArrowUpDown className="h-4 w-4" />
-            </Button>
-          </TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead>Location/Person</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {bills.map((bill) => {
-          const status = getPaidStatus(bill.due_date);
-          return (
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Provider</TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                onClick={() => onSort("due_date")}
+                className="flex items-center gap-2"
+              >
+                Due Date
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                onClick={() => onSort("amount")}
+                className="flex items-center gap-2"
+              >
+                Amount
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Location/Person</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {bills.map((bill) => (
             <TableRow
               key={bill.id}
               className="cursor-pointer hover:bg-muted/50"
@@ -135,16 +170,46 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
             >
               <TableCell>{bill.provider}</TableCell>
               <TableCell>
-                {format(new Date(bill.due_date), "MMM d, yyyy")}
+                {format(new Date(bill.due_date), "dd/MM/yyyy")}
               </TableCell>
               <TableCell>${bill.amount.toFixed(2)}</TableCell>
               <TableCell>{bill.category}</TableCell>
               <TableCell>{bill.location_person}</TableCell>
-              <TableCell className={getStatusColor(status)}>
-                {status}
+              <TableCell>
+                <BillStatus 
+                  dueDate={bill.due_date}
+                  paymentStatus={bill.payment_status}
+                  paidDate={bill.paid_date}
+                />
               </TableCell>
               <TableCell>
                 <div className="flex gap-2">
+                  {bill.payment_status === 'paid' ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="action-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUnmarkAsPaid(bill);
+                      }}
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="action-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedBill(bill);
+                        setShowDateDialog(true);
+                      }}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
@@ -186,9 +251,46 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
                 </div>
               </TableCell>
             </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+          ))}
+        </TableBody>
+      </Table>
+      <Dialog open={showDateDialog} onOpenChange={setShowDateDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Select Payment Date</DialogTitle>
+            <DialogDescription>
+              Choose the date when this bill was paid.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => date && setSelectedDate(date)}
+              className="rounded-md border"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDateDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (selectedBill) {
+                  handleMarkAsPaid(selectedBill, selectedDate);
+                  setShowDateDialog(false);
+                  setSelectedBill(null);
+                }
+              }}
+            >
+              Mark as Paid
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

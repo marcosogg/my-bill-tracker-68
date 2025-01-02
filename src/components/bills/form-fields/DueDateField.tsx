@@ -31,7 +31,7 @@ export function DueDateField({ form }: DueDateFieldProps) {
                   )}
                 >
                   {field.value ? (
-                    format(field.value, "PPP")
+                    format(field.value, "dd/MM/yyyy")
                   ) : (
                     <span>Pick a date</span>
                   )}
