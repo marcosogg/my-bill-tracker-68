@@ -2,20 +2,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
-import { toast } from "sonner";
 import RecurringBillsCard from "@/components/RecurringBillsCard";
 
 const Index = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      navigate("/login");
-    } catch (error: any) {
-      toast.error("Error logging out: " + error.message);
-    }
+    await supabase.auth.signOut();
+    navigate("/login");
   };
 
   return (
