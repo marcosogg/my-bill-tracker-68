@@ -15,7 +15,7 @@ export const BillAttachment = ({ attachment, billId }: BillAttachmentProps) => {
     try {
       const { data } = await supabase.storage
         .from("bill-attachments")
-        .createSignedUrl(`${billId}/${attachment}`, 3600); // 1 hour expiration
+        .createSignedUrl(attachment!, 3600); // 1 hour expiration
 
       if (data?.signedUrl) {
         window.open(data.signedUrl, '_blank');
