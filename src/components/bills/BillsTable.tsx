@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { ArrowUpDown, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,19 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { BillActions } from "./BillActions";
 
 export type Bill = {
   id: string;
@@ -148,45 +138,11 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
               <TableCell className={getStatusColor(status)}>
                 {status}
               </TableCell>
-              <TableCell className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/bills/${bill.id}/edit`);
-                  }}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Bill</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this bill? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => handleDelete(bill.id)}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+              <TableCell>
+                <BillActions 
+                  billId={bill.id}
+                  onDelete={() => handleDelete(bill.id)}
+                />
               </TableCell>
             </TableRow>
           );
