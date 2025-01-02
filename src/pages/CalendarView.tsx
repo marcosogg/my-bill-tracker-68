@@ -9,7 +9,7 @@ const CalendarView = () => {
         </CardHeader>
         <CardContent>
           <div className="min-h-[400px] flex items-center justify-center text-muted-foreground">
-            Coming soon!
+            Coming soon
           </div>
         </CardContent>
       </Card>
