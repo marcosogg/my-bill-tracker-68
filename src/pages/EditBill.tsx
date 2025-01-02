@@ -66,13 +66,13 @@ const EditBill = () => {
       form.reset({
         provider: bill.provider,
         due_date: parse(bill.due_date, "yyyy-MM-dd", new Date()),
-        amount: String(bill.amount), // Convert number to string for the form
+        amount: bill.amount,
         category: bill.category as any,
         payment_method: bill.payment_method,
         location_person: bill.location_person as any,
         notes: bill.notes || "",
         recurring: bill.recurring || false,
-        estimated_amount: bill.estimated_amount ? String(bill.estimated_amount) : undefined, // Convert number to string for the form
+        estimated_amount: bill.estimated_amount || undefined,
       });
     }
   }, [bill, form]);
@@ -152,11 +152,17 @@ const EditBill = () => {
             <FormField
               control={form.control}
               name="amount"
-              render={({ field }) => (
+              render={({ field: { value, onChange, ...field } }) => (
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" {...field} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...field}
+                      value={value}
+                      onChange={(e) => onChange(parseFloat(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -217,9 +223,15 @@ const EditBill = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Marcos - Ireland">Marcos - Ireland</SelectItem>
-                      <SelectItem value="Marcos - Brazil">Marcos - Brazil</SelectItem>
-                      <SelectItem value="Marilia - Brazil">Marilia - Brazil</SelectItem>
+                      <SelectItem value="Marcos - Ireland">
+                        Marcos - Ireland
+                      </SelectItem>
+                      <SelectItem value="Marcos - Brazil">
+                        Marcos - Brazil
+                      </SelectItem>
+                      <SelectItem value="Marilia - Brazil">
+                        Marilia - Brazil
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -263,11 +275,21 @@ const EditBill = () => {
               <FormField
                 control={form.control}
                 name="estimated_amount"
-                render={({ field }) => (
+                render={({ field: { value, onChange, ...field } }) => (
                   <FormItem>
                     <FormLabel>Estimated Amount</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...field}
+                        value={value || ""}
+                        onChange={(e) =>
+                          onChange(
+                            e.target.value ? parseFloat(e.target.value) : undefined
+                          )
+                        }
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
