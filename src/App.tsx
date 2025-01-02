@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import AddBill from "./pages/AddBill";
@@ -34,6 +36,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
+const AppLayout = ({ children }: { children: React.ReactNode }) => (
+  <SidebarProvider>
+    <div className="flex min-h-screen w-full">
+      <AppSidebar />
+      <main className="flex-1">
+        <div className="container">
+          <SidebarTrigger className="mb-4" />
+          {children}
+        </div>
+      </main>
+    </div>
+  </SidebarProvider>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -46,7 +62,9 @@ const App = () => (
             path="/"
             element={
               <ProtectedRoute>
-                <Index />
+                <AppLayout>
+                  <Index />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
@@ -54,7 +72,9 @@ const App = () => (
             path="/add-bill"
             element={
               <ProtectedRoute>
-                <AddBill />
+                <AppLayout>
+                  <AddBill />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
@@ -62,7 +82,9 @@ const App = () => (
             path="/bills"
             element={
               <ProtectedRoute>
-                <AllBills />
+                <AppLayout>
+                  <AllBills />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
@@ -70,7 +92,9 @@ const App = () => (
             path="/bills/:id"
             element={
               <ProtectedRoute>
-                <BillDetails />
+                <AppLayout>
+                  <BillDetails />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
@@ -78,7 +102,9 @@ const App = () => (
             path="/payment-history"
             element={
               <ProtectedRoute>
-                <PaymentHistory />
+                <AppLayout>
+                  <PaymentHistory />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
@@ -86,7 +112,9 @@ const App = () => (
             path="/settings"
             element={
               <ProtectedRoute>
-                <Settings />
+                <AppLayout>
+                  <Settings />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
@@ -94,7 +122,9 @@ const App = () => (
             path="/reports"
             element={
               <ProtectedRoute>
-                <Reports />
+                <AppLayout>
+                  <Reports />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
@@ -102,7 +132,9 @@ const App = () => (
             path="/budget"
             element={
               <ProtectedRoute>
-                <BudgetManagement />
+                <AppLayout>
+                  <BudgetManagement />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
@@ -110,7 +142,9 @@ const App = () => (
             path="/calendar"
             element={
               <ProtectedRoute>
-                <CalendarView />
+                <AppLayout>
+                  <CalendarView />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
