@@ -12,7 +12,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <SidebarProvider>
-        <div className="flex min-h-screen w-full">
+        <div className="min-h-screen flex w-full">
           <Toaster />
           <Sonner />
           <BrowserRouter>
