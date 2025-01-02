@@ -1,18 +1,19 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "../integrations/supabase/client";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { BillAttachment } from "@/components/bills/BillAttachment";
-import { BillStatus } from "@/components/bills/BillStatus";
-import { RecurringBillInfo } from "@/components/bills/RecurringBillInfo";
+} from "../components/ui/card";
+import { Separator } from "../components/ui/separator";
+import { BillAttachment } from "../components/bills/BillAttachment";
+import { BillStatus } from "../components/bills/BillStatus";
+import { RecurringBillInfo } from "../components/bills/RecurringBillInfo";
+import { StandardPageLayout, PageHeader } from "../components/layouts/PageLayout";
 
 type Bill = {
   id: string;
@@ -47,26 +48,30 @@ const BillDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen p-8">
+      <StandardPageLayout>
+        <PageHeader title="Bill Details" />
         <div className="max-w-3xl mx-auto">
-          <p className="text-center">Loading bill details...</p>
+          <p className="text-center py-8">Loading bill details...</p>
         </div>
-      </div>
+      </StandardPageLayout>
     );
   }
 
   if (!bill) {
     return (
-      <div className="min-h-screen p-8">
+      <StandardPageLayout>
+        <PageHeader title="Bill Details" />
         <div className="max-w-3xl mx-auto">
-          <p className="text-center text-muted-foreground">Bill not found</p>
+          <p className="text-center py-8 text-muted-foreground">Bill not found</p>
         </div>
-      </div>
+      </StandardPageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen p-8">
+    <StandardPageLayout>
+      <PageHeader title={bill.provider} />
+      
       <div className="max-w-3xl mx-auto">
         <Card>
           <CardHeader>
@@ -74,7 +79,7 @@ const BillDetails = () => {
             <CardDescription>Bill Details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground">Due Date</p>
                 <p className="text-lg">
@@ -89,7 +94,7 @@ const BillDetails = () => {
 
             <Separator />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground">Category</p>
                 <p>{bill.category}</p>
@@ -100,7 +105,7 @@ const BillDetails = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground">Location/Person</p>
                 <p>{bill.location_person}</p>
@@ -137,7 +142,7 @@ const BillDetails = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </StandardPageLayout>
   );
 };
 

@@ -1,8 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { EditBillForm } from "@/components/bills/EditBillForm";
+import { supabase } from "../integrations/supabase/client";
+import { EditBillForm } from "../components/bills/EditBillForm";
+import { StandardPageLayout, PageHeader } from "../components/layouts/PageLayout";
 
 const EditBill = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,33 +25,36 @@ const EditBill = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen p-8">
-        <div className="max-w-2xl mx-auto flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin" />
+      <StandardPageLayout>
+        <PageHeader title="Edit Bill" />
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
         </div>
-      </div>
+      </StandardPageLayout>
     );
   }
 
   if (!bill) {
     return (
-      <div className="min-h-screen p-8">
+      <StandardPageLayout>
+        <PageHeader title="Edit Bill" />
         <div className="max-w-2xl mx-auto">
-          <p className="text-center text-muted-foreground">Bill not found</p>
+          <p className="text-center py-8 text-muted-foreground">Bill not found</p>
         </div>
-      </div>
+      </StandardPageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen p-8">
+    <StandardPageLayout>
+      <PageHeader title={`Edit Bill - ${bill.provider}`} />
+      
       <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Edit Bill</h1>
-        </div>
         <EditBillForm bill={bill} />
       </div>
-    </div>
+    </StandardPageLayout>
   );
 };
 

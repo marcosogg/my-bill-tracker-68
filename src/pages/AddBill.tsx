@@ -1,14 +1,21 @@
-import { AddBillForm } from "@/components/bills/AddBillForm";
+import { AddBillForm } from "../components/bills/AddBillForm";
+import { StandardPageLayout, PageHeader } from "../components/layouts/PageLayout";
+import { Card, CardContent } from "../components/ui/card";
 
 export default function AddBill() {
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Add New Bill</h1>
-        </div>
-        <AddBillForm />
+    <StandardPageLayout>
+      <PageHeader 
+        title="Add New Bill"
+      />
+      
+      <div className="grid gap-6 md:gap-8">
+        <Card>
+          <CardContent>
+            <AddBillForm />
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </StandardPageLayout>
   );
 }

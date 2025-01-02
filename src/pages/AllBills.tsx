@@ -2,10 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { BillsFilter } from "@/components/bills/BillsFilter";
-import { BillsTable, type Bill, type SortField, type SortOrder } from "@/components/bills/BillsTable";
+import { supabase } from "../integrations/supabase/client";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import { BillsFilter } from "../components/bills/BillsFilter";
+import { BillsTable, type Bill, type SortField, type SortOrder } from "../components/bills/BillsTable";
+import { StandardPageLayout, PageHeader } from "../components/layouts/PageLayout";
 
 const AllBills = () => {
   const navigate = useNavigate();
@@ -66,43 +68,55 @@ const AllBills = () => {
     }
   };
 
+  const headerActions = (
+    <Button onClick={() => navigate("/add-bill")}>
+      <Plus className="h-4 w-4 mr-2" />
+      Add New Bill
+    </Button>
+  );
+
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-bold">All Bills</h1>
-          <Button onClick={() => navigate("/add-bill")}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Bill
-          </Button>
-        </div>
+    <StandardPageLayout>
+      <PageHeader 
+        title="All Bills"
+        actions={headerActions}
+      />
+      
+      <div className="grid gap-6 md:gap-8">
+        <Card>
+          <CardContent>
+            <BillsFilter
+              location={location}
+              category={category}
+              paidStatus={paidStatus}
+              onLocationChange={setLocation}
+              onCategoryChange={setCategory}
+              onPaidStatusChange={setPaidStatus}
+            />
+          </CardContent>
+        </Card>
 
-        <BillsFilter
-          location={location}
-          category={category}
-          paidStatus={paidStatus}
-          onLocationChange={setLocation}
-          onCategoryChange={setCategory}
-          onPaidStatusChange={setPaidStatus}
-        />
-
-        {isLoading ? (
-          <div className="text-center py-8">Loading bills...</div>
-        ) : bills && bills.length > 0 ? (
-          <BillsTable
-            bills={bills}
-            sortField={sortField}
-            sortOrder={sortOrder}
-            onSort={toggleSort}
-            refetchBills={refetch}
-          />
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            No bills found matching the selected criteria.
-          </div>
-        )}
+        <Card>
+          <CardContent>
+            {isLoading ? (
+              <div className="text-center py-8">Loading bills...</div>
+            ) : bills && bills.length > 0 ? (
+              <BillsTable
+                bills={bills}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                onSort={toggleSort}
+                refetchBills={refetch}
+              />
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No bills found matching the selected criteria.
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </StandardPageLayout>
   );
 };
 
