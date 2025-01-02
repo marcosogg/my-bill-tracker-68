@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import AddBill from "./pages/AddBill";
 import AllBills from "./pages/AllBills";
 import BillDetails from "./pages/BillDetails";
+import EditBill from "./pages/EditBill";
 import PaymentHistory from "./pages/PaymentHistory";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
@@ -71,6 +72,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <BillDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bills/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditBill />
               </ProtectedRoute>
             }
           />
