@@ -1,6 +1,7 @@
 import { format } from "date-fns";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Pencil, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -10,6 +11,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Bill = {
   id: string;
@@ -28,6 +41,7 @@ type BillsTableProps = {
   sortField: SortField;
   sortOrder: SortOrder;
   onSort: (field: SortField) => void;
+  refetchBills: () => void;
 };
 
 export const getStatusColor = (status: string) => {
@@ -49,8 +63,34 @@ export const getPaidStatus = (dueDate: string) => {
   return due < today ? "Overdue" : "Unpaid";
 };
 
-export const BillsTable = ({ bills, sortField, sortOrder, onSort }: BillsTableProps) => {
+export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }: BillsTableProps) => {
   const navigate = useNavigate();
+
+  const handleDelete = async (billId: string) => {
+    try {
+      const { error } = await supabase
+        .from("bills")
+        .delete()
+        .eq("id", billId);
+
+      if (error) throw error;
+
+      toast.success("Bill deleted successfully");
+      refetchBills();
+    } catch (error) {
+      toast.error("Failed to delete bill");
+      console.error("Error deleting bill:", error);
+    }
+  };
+
+  const handleRowClick = (e: React.MouseEvent, billId: string) => {
+    // Prevent navigation when clicking action buttons
+    if ((e.target as HTMLElement).closest('.action-button')) {
+      e.stopPropagation();
+      return;
+    }
+    navigate(`/bills/${billId}`);
+  };
 
   return (
     <Table>
@@ -80,6 +120,7 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort }: BillsTablePr
           <TableHead>Category</TableHead>
           <TableHead>Location/Person</TableHead>
           <TableHead>Status</TableHead>
+          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -89,7 +130,7 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort }: BillsTablePr
             <TableRow
               key={bill.id}
               className="cursor-pointer hover:bg-muted/50"
-              onClick={() => navigate(`/bills/${bill.id}`)}
+              onClick={(e) => handleRowClick(e, bill.id)}
             >
               <TableCell>{bill.provider}</TableCell>
               <TableCell>
@@ -100,6 +141,48 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort }: BillsTablePr
               <TableCell>{bill.location_person}</TableCell>
               <TableCell className={getStatusColor(status)}>
                 {status}
+              </TableCell>
+              <TableCell>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="action-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/bills/${bill.id}/edit`);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="action-button"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Bill</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this bill? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(bill.id)}
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </TableCell>
             </TableRow>
           );
