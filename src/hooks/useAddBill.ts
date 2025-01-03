@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDateForSupabase } from "@/utils/dateUtils";
 import { z } from "zod";
+import { fetchExchangeRate } from "@/utils/currencyUtils";
 
 export const formSchema = z.object({
   provider: z.string().min(1, "Provider is required"),
@@ -14,6 +15,7 @@ export const formSchema = z.object({
     required_error: "Amount is required",
     invalid_type_error: "Amount must be a number",
   }),
+  currency: z.enum(["EUR", "BRL"]).default("EUR"),
   category: z.enum([
     "Electricity",
     "Water",
@@ -72,6 +74,8 @@ export const useAddBill = () => {
         estimated_amount: values.recurring ? values.estimated_amount : null,
         attachment: attachmentPath,
         user_id: (await supabase.auth.getUser()).data.user?.id,
+        currency: values.currency,
+        exchange_rate: values.currency === "EUR" ? 1 : await fetchExchangeRate(values.currency),
       });
 
       if (error) throw error;

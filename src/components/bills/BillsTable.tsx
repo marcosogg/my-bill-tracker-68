@@ -40,13 +40,29 @@ export type Bill = {
   provider: string;
   due_date: string;
   amount: number;
+  currency: string;
+  exchange_rate: number | null;
   category: string;
   location_person: string;
   payment_status?: 'paid' | 'unpaid';
   paid_date?: string | null;
 };
 
-export type SortField = "due_date" | "amount" | "provider";
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  EUR: '€',
+  BRL: 'R$'
+};
+
+const formatAmount = (amount: number, currency: string, exchange_rate: number | null) => {
+  const formatted = `${CURRENCY_SYMBOLS[currency]}${amount.toFixed(2)}`;
+  if (currency !== 'EUR' && exchange_rate) {
+    const eurAmount = amount * exchange_rate;
+    return `${formatted} (€${eurAmount.toFixed(2)})`;
+  }
+  return formatted;
+};
+
+export type SortField = "due_date" | "amount" | "provider" | "currency";
 export type SortOrder = "asc" | "desc";
 
 type BillsTableProps = {
@@ -155,6 +171,16 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
                 <ArrowUpDown className="h-4 w-4" />
               </Button>
             </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                onClick={() => onSort("currency")}
+                className="flex items-center gap-2"
+              >
+                Currency
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Location/Person</TableHead>
             <TableHead>Status</TableHead>
@@ -172,7 +198,8 @@ export const BillsTable = ({ bills, sortField, sortOrder, onSort, refetchBills }
               <TableCell>
                 {format(new Date(bill.due_date), "dd/MM/yyyy")}
               </TableCell>
-              <TableCell>${bill.amount.toFixed(2)}</TableCell>
+              <TableCell>{formatAmount(bill.amount, bill.currency, bill.exchange_rate)}</TableCell>
+              <TableCell>{bill.currency}</TableCell>
               <TableCell>{bill.category}</TableCell>
               <TableCell>{bill.location_person}</TableCell>
               <TableCell>

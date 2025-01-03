@@ -15,6 +15,8 @@ export type Database = {
           attachment: string | null
           category: string
           created_at: string
+          currency: string
+          exchange_rate: number | null
           due_date: string
           estimated_amount: number | null
           id: string
@@ -32,6 +34,8 @@ export type Database = {
           attachment?: string | null
           category: string
           created_at?: string
+          currency?: string
+          exchange_rate?: number | null
           due_date: string
           estimated_amount?: number | null
           id?: string
@@ -49,6 +53,8 @@ export type Database = {
           attachment?: string | null
           category?: string
           created_at?: string
+          currency?: string
+          exchange_rate?: number | null
           due_date?: string
           estimated_amount?: number | null
           id?: string

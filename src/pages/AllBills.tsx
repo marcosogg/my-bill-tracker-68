@@ -22,7 +22,7 @@ const AllBills = () => {
     queryFn: async () => {
       let query = supabase
         .from("bills")
-        .select("id, provider, due_date, amount, category, location_person, payment_status, paid_date");
+        .select("id, provider, due_date, amount, currency, exchange_rate, category, location_person, payment_status, paid_date");
 
       if (location !== "All") {
         query = query.eq("location_person", location);
