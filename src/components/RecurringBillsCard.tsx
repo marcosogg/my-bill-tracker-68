@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CURRENCY_SYMBOLS, formatCurrency } from "@/utils/currencyUtils";
 
 type Bill = {
   id: string;
@@ -17,6 +18,7 @@ type Bill = {
   category: string;
   estimated_amount: number;
   due_date: string;
+  currency: string;
 };
 
 const RecurringBillsCard = () => {
@@ -27,7 +29,7 @@ const RecurringBillsCard = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("bills")
-        .select("id, provider, category, estimated_amount, due_date")
+        .select("id, provider, category, estimated_amount, due_date, currency")
         .eq("recurring", true)
         .order("due_date", { ascending: true });
 
@@ -78,8 +80,7 @@ const RecurringBillsCard = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-1 text-lg font-semibold">
-                  <DollarSign className="h-4 w-4" />
-                  {bill.estimated_amount.toFixed(2)}
+                  {formatCurrency(bill.estimated_amount, bill.currency)}
                 </div>
               </div>
             ))}

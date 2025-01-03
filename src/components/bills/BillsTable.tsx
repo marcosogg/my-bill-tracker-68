@@ -34,6 +34,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { supabase } from "@/integrations/supabase/client";
 import { BillStatus } from "./BillStatus";
+import { CURRENCY_SYMBOLS, formatCurrency } from "@/utils/currencyUtils";
 
 export type Bill = {
   id: string;
@@ -48,16 +49,11 @@ export type Bill = {
   paid_date?: string | null;
 };
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  EUR: '€',
-  BRL: 'R$'
-};
-
 const formatAmount = (amount: number, currency: string, exchange_rate: number | null) => {
-  const formatted = `${CURRENCY_SYMBOLS[currency]}${amount.toFixed(2)}`;
+  const formatted = formatCurrency(amount, currency);
   if (currency !== 'EUR' && exchange_rate) {
     const eurAmount = amount * exchange_rate;
-    return `${formatted} (€${eurAmount.toFixed(2)})`;
+    return `${formatted} (${formatCurrency(eurAmount, 'EUR')})`;
   }
   return formatted;
 };

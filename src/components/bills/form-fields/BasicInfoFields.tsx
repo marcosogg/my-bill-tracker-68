@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FormValues } from "@/hooks/useAddBill";
-import { CURRENCY_OPTIONS, CURRENCY_SYMBOLS } from "@/utils/currencyUtils";
+import { CURRENCY_OPTIONS, formatCurrency } from "@/utils/currencyUtils";
 
 interface BasicInfoFieldsProps {
   form: UseFormReturn<FormValues>;
@@ -43,7 +43,7 @@ export function BasicInfoFields({ form }: BasicInfoFieldsProps) {
                 <FormControl>
                   <Input
                     type="number"
-                    step="0.01"
+                    step="0.10"
                     placeholder="Enter amount"
                     {...field}
                     onChange={(e) => {
@@ -66,6 +66,7 @@ export function BasicInfoFields({ form }: BasicInfoFieldsProps) {
               <FormLabel>Currency</FormLabel>
               <Select
                 onValueChange={field.onChange}
+                value={field.value}
                 defaultValue={field.value}
               >
                 <FormControl>
@@ -76,7 +77,7 @@ export function BasicInfoFields({ form }: BasicInfoFieldsProps) {
                 <SelectContent>
                   {CURRENCY_OPTIONS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      {option.label} {CURRENCY_SYMBOLS[option.value]}
+                      {option.label} {formatCurrency(1, option.value)}
                     </SelectItem>
                   ))}
                 </SelectContent>
