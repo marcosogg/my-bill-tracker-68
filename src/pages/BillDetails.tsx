@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { fetchExchangeRate, CURRENCY_SYMBOLS } from "../utils/currencyUtils";
 import { supabase } from "../integrations/supabase/client";
 import {
   Card,
@@ -33,6 +34,8 @@ type Bill = {
   provider: string;
   due_date: string;
   amount: number;
+  currency: string;
+  exchange_rate: number;
   category: string;
   payment_method: string;
   location_person: string;
@@ -145,7 +148,14 @@ const BillDetails = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Amount</p>
-                <p className="text-lg">${bill.amount.toFixed(2)}</p>
+                <p className="text-lg">
+                  {CURRENCY_SYMBOLS[bill.currency]}{bill.amount.toFixed(2)}
+                  {bill.currency !== "EUR" && (
+                    <span className="text-sm text-muted-foreground ml-2">
+                      (€{(bill.amount * bill.exchange_rate).toFixed(2)})
+                    </span>
+                  )}
+                </p>
               </div>
             </div>
 

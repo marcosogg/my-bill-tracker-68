@@ -75,7 +75,7 @@ export const useAddBill = () => {
         attachment: attachmentPath,
         user_id: (await supabase.auth.getUser()).data.user?.id,
         currency: values.currency,
-        exchange_rate: values.currency === "EUR" ? 1 : await fetchExchangeRate(values.currency),
+        exchange_rate: values.currency === "EUR" ? 1 : await fetchExchangeRate(values.currency, "EUR"),
       });
 
       if (error) throw error;
