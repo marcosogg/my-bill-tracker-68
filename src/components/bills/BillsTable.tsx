@@ -52,7 +52,7 @@ export type Bill = {
 const formatAmount = (amount: number, currency: string, exchange_rate: number | null) => {
   const formatted = formatCurrency(amount, currency);
   if (currency !== 'EUR' && exchange_rate) {
-    const eurAmount = amount * exchange_rate;
+    const eurAmount = amount / exchange_rate;
     return `${formatted} (${formatCurrency(eurAmount, 'EUR')})`;
   }
   return formatted;

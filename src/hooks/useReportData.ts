@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Bill } from "@/components/bills/BillsTable";
-import { CURRENCY_SYMBOLS } from "@/utils/currencyUtils";
+import { fetchExchangeRate, CURRENCY_SYMBOLS } from "@/utils/currencyUtils";
 
 interface CurrencyTotal {
   currency: string;
@@ -20,6 +20,7 @@ export function useReportData() {
   return useQuery<ReportData>({
     queryKey: ["reportData"],
     queryFn: async () => {
+      // Fetch bills from database
       const { data: bills, error } = await supabase
         .from("bills")
         .select("*")
@@ -29,6 +30,22 @@ export function useReportData() {
 
       const billsByCurrency: Record<string, Bill[]> = {};
       const totals: Record<string, CurrencyTotal> = {};
+
+      // Get exchange rates for all currencies
+      const uniqueCurrencies = [...new Set(bills.map((bill: Bill) => bill.currency))];
+      const exchangeRates: Record<string, number> = {};
+
+      for (const currency of uniqueCurrencies) {
+        if (currency !== 'EUR') {
+          try {
+            exchangeRates[currency] = await fetchExchangeRate(currency, 'EUR');
+          } catch (error) {
+            console.error(`Failed to fetch exchange rate for ${currency}:`, error);
+            // Use stored exchange rate as fallback
+            exchangeRates[currency] = 1;
+          }
+        }
+      }
 
       bills.forEach((bill: Bill) => {
         // Group bills by currency
@@ -48,10 +65,29 @@ export function useReportData() {
         }
 
         totals[bill.currency].total += bill.amount;
-        totals[bill.currency].eurEquivalent += bill.currency === "EUR" 
-          ? bill.amount 
-          : (bill.amount * (bill.exchange_rate || 1));
+
+        // Calculate EUR equivalent using current or stored exchange rate
+        const exchangeRate = bill.currency === "EUR" 
+          ? 1 
+          : bill.exchange_rate || exchangeRates[bill.currency];
+          
+        totals[bill.currency].eurEquivalent += bill.amount * exchangeRate;
         totals[bill.currency].count += 1;
+
+        // Update bill's exchange rate in database if it's different
+        if (bill.currency !== "EUR" && 
+            (!bill.exchange_rate || Math.abs(bill.exchange_rate - exchangeRates[bill.currency]) > 0.0001)) {
+          supabase
+            .from("bills")
+            .update({ exchange_rate: exchangeRates[bill.currency] })
+            .eq("id", bill.id)
+            .then(() => {
+              console.log(`Updated exchange rate for bill ${bill.id}`);
+            })
+            .catch((error) => {
+              console.error(`Failed to update exchange rate for bill ${bill.id}:`, error);
+            });
+        }
       });
 
       const currencyTotals = Object.values(totals);
@@ -67,8 +103,4 @@ export function useReportData() {
       };
     },
   });
-}
-
-export function formatCurrency(amount: number, currency: string): string {
-  return `${CURRENCY_SYMBOLS[currency]}${amount.toFixed(2)}`;
 }
